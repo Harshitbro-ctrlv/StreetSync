@@ -41,4 +41,24 @@ const loginUser = async function (data) {
   }
 };
 
-export { registerUser, loginUser };
+const searchForVendors = async function () {
+  try {
+    const res = await axios.get(`/api/user/searchVendors`, {
+      withCredentials: true, // required for cookie auth
+    });
+
+    return {
+      status: res.status,
+      data: res.data,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      status: error.response?.status || 500,
+      data: null,
+      error: error.response?.data || "something went wrong",
+    };
+  }
+};
+
+export { registerUser, loginUser,searchForVendors };

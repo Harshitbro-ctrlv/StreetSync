@@ -50,7 +50,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     password,
     role,
     stallName: role === "vendor" ? stallName : undefined,
-    address: role === "vendor" ? address : undefined,
+    address,
     menu: role === "vendor" ? parsedMenu : [],
   });
 
@@ -115,4 +115,30 @@ export const loginUser = asyncHandler(async (req, res) => {
       message: "User logged in successfully",
       updateUser
     });
+});
+
+export const searchForVendors = asyncHandler(async (req, res) => {
+  const loggedInUser = req.user;
+
+  if (!loggedInUser) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+
+  if (!loggedInUser.address?.city) {
+    throw new ApiError(400, "User location not available");
+  }
+
+  const city = loggedInUser.address.city;
+
+  const vendors = await User.find({
+    role: "vendor",
+    "address.city": { $regex: new RegExp(`^${city}$`, "i") },
+    _id: { $ne: loggedInUser._id },
+  }).select("-password -refreshToken -__v");
+
+  return res.status(200).json({
+    success: true,
+    count: vendors.length,
+    vendors,
+  });
 });
