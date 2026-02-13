@@ -94,11 +94,11 @@ export const loginUser = asyncHandler(async (req, res) => {
   await user.save({ validateBeforeSave: false });
 
   // Cookie options
-  const options = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-  };
+ const cookieOptions = {
+  httpOnly: true,
+  secure: true,        // MUST be true in production
+  sameSite: "none",    // REQUIRED for cross-site cookies
+};
   const updateUser = await User.findById(user._id).select("-password")
 
   // 7️⃣ Send cookies
